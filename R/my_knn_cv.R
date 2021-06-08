@@ -13,7 +13,7 @@
 #'   value representing the cross-validation misclassification error. 
 #' 
 #' @examples 
-#' my_knn_cv(train = penguins_meas, cl = penguins$species, k_nn = 1, k_cv = 5)
+#' my_knn_cv(train = my_penguins[-c(1, 2)], cl = my_penguins$species, k_nn = 1, k_cv = 5)
 #' 
 #' @export
 
@@ -48,7 +48,7 @@ my_knn_cv <- function(train, cl, k_nn, k_cv) {
     cv_err[i] <- mean(knn_predict != y_test)
   }
   
-  full_knn <- knn(train = train, 
+  full_knn <- class::knn(train = train, 
                   test = train,
                   cl = cl,
                   k = k_nn)
