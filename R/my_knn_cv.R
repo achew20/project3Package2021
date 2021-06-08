@@ -13,8 +13,7 @@
 #'   value representing the cross-validation misclassification error. 
 #' 
 #' @examples 
-#' my_knn_cv(train = data, cl = data$y, k_nn = 5, k_cv = 10)
-#' my_knn_cv(train = data, cl = data$results, k_nn = 1, k_cv = 5)
+#' my_knn_cv(train = penguins_meas, cl = penguins$species, k_nn = 1, k_cv = 5)
 #' 
 #' @export
 
