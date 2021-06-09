@@ -2,7 +2,11 @@
 set.seed(302)
 x <- rnorm(100, mean = 0, sd = 1)
 
-test_that("performs proper t-test", {
-  expect_type(is.list(my_t.test(x, alternative = "less", mu = 0)), length(my_t.test(x, alternative = "less", mu = 0)) == 4)
+test_that("returns output of correct type", {
+  expect_type(my_t.test(x, alternative = "less", mu = 0), "list")
+})
+
+test_that("throws error if wrong input for alternative", {
+  expect_error(my_t.test(x, alternative = "lss", mu = 0))
 })
 

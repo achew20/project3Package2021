@@ -22,9 +22,9 @@
 #   k_nn (must be numeric), k_cv (must be numeric)
 # Output: list with elements: 'predicted class', 'cv_err'
 my_knn_cv <- function(train, cl, k_nn, k_cv) {
-  n <- nrow(train)
+  train <- na.omit(train)
   # randomly assigns observations to folds 
-  fold <- sample(rep(1:k_cv, length = n)) 
+  fold <- sample(rep(1:k_cv, length = nrow(train))) 
   
   # create empty vectors for cv error and class lists
   cv_err <- rep(NA, k_cv)
@@ -35,10 +35,10 @@ my_knn_cv <- function(train, cl, k_nn, k_cv) {
     x_train <- train[fold != i,]
     x_test <- train[fold == i,]
     y_train <- cl[fold != i]
-    y_test <- cl[fold == i]
+    y_test <- cl[fold ==i]
     
     # perform knn predictions 
-    knn_predict <- (knn(train = x_train,
+    knn_predict <- (class::knn(train = x_train,
                         test = x_test,
                         cl = y_train,
                         k = k_nn 
@@ -52,8 +52,9 @@ my_knn_cv <- function(train, cl, k_nn, k_cv) {
                   test = train,
                   cl = cl,
                   k = k_nn)
-  # output as dataframe 
+  
   output_dataframe <- list("Predicted CLass" = full_knn,
                            "Misclassification Error" = mean(cv_err))
   return(output_dataframe)
 }
+

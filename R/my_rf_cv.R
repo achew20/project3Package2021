@@ -18,6 +18,13 @@
 # Input: k (must be numeric)
 # Output: mse (mean standard error)
 my_rf_cv <- function(k) {
+  library(palmerpenguins)
+  data(package = "palmerpenguins")
+  
+  penguins_meas <- penguins %>% 
+    dplyr::select(bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g)
+  penguins_meas <- na.omit(penguins_meas)
+  
   n <- nrow(penguins_meas)
   # randomly assign observations to a fold 
   fold <- sample(rep(1:k, length = n)) 
@@ -38,7 +45,7 @@ my_rf_cv <- function(k) {
     data_test <- data_pen %>% dplyr::filter(split == i)
     
     # train random forest model 
-    rf_model <- randomForest(y ~ x + z + c, data = 
+    rf_model <- randomForest::randomForest(y ~ x + z + c, data = 
                                data_train, ntree = 100)
     
     # predict 
