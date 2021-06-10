@@ -128,11 +128,15 @@ my_penguins_meas <- my_penguins[c(3:6)]
 
 Next, we input the data into our function using a 5-fold cross validation and 10 neighbors: 
 ```{r}
+# create empty vectors 
 cv_err_all <- rep(NA, 10)
 train_err_all <- rep(NA, 10)
+# iterate through 10 neighbors 
 for (i in 1:10) {
   output_dataframe <- my_knn_cv(train = my_penguins_meas, cl = my_penguins$species, k_nn = i, k_cv = 5)
+  # record cv error 
   cv_err_all[i] <- output_dataframe$`Misclassification Error`
+  # record training error 
   train_err_all[i] <- mean(output_dataframe$`Predicted Class` != my_penguins$species)
 }
 cv_err_all
@@ -145,15 +149,19 @@ Based on the CV misclassification rates, I would choose a k-Nearest Neighbors mo
 Finally, we will demonstrate how to use `my_rf_cv`. In this example, we want to predict `body_mass_g` from the covariates `bill_length_mm`, `bill_depth_mm` and `flipper_length_mm`. 
 
 ```{r}
+# create empty vectors 
 mse_all <- rep(NA, 90)
 k_vals <- rep(c(2,5,10), each = 30)
 
+# iterate through all 90 simulations 
 for(i in 1:90) {
   k_vals[i]
+  # fill in with output from my_rf_cv
   mse_all[i] <- my_rf_cv(k_vals[i])
 }
 mse_all
 
+# separate mse data by k-value 
 mse_2 <- mse_all[1:30]
 mse_5 <- mse_all[31:60]
 mse_10 <- mse_all[61:90]
