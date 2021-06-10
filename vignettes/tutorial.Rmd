@@ -29,12 +29,11 @@ library(dplyr)
 library(ggplot2)
 library(tibble)
 
-# load data
-my_gapminder <- library(gapminder)
-data("my_gapminder")
+# # load data
+# my_gapminder <- load("~/Desktop/STAT302/projects/Project3/project3Package2021/data/my_gapminder.rda")
+# 
+# my_penguins <- load("~/Desktop/STAT 302/projects/Project3/project3Package2021/data/my_penguins.rda")
 
-my_penguins <- library(palmerpenguins)
-data("my_penguins")
 ```
 
 ## Statistical Inference
@@ -131,19 +130,23 @@ Next, we input the data into our function using a 5-fold cross validation and 10
 # create empty vectors 
 cv_err_all <- rep(NA, 10)
 train_err_all <- rep(NA, 10)
+
+pull_spec <- pull(my_penguins, species)
+pull_spec <- as.factor(pull_spec)
 # iterate through 10 neighbors 
 for (i in 1:10) {
   output_dataframe <- my_knn_cv(train = my_penguins_meas, cl = my_penguins$species, k_nn = i, k_cv = 5)
   # record cv error 
   cv_err_all[i] <- output_dataframe$`Misclassification Error`
   # record training error 
-  train_err_all[i] <- mean(output_dataframe$`Predicted Class` != my_penguins$species)
+  train_err_all[i] <- mean(output_dataframe$`Predicted CLass` != pull_spec)
 }
 cv_err_all
 train_err_all
 ```
 Based on the CV misclassification rates, I would choose a k-Nearest Neighbors model with k = 1, because this is when the CV miscalssification rate is lowest. 
 
+However, based on the training set error rates, I would choose a model with k = 2, where the training error produced by our function was about 0.067. Although this k-value produced the second to lowest training error rate, an error rate of exactly 0 may have been produced by chance and therefore our output for k = 1 may not be reliable. So we choose the second lowest training error rate, at k = 2.
 
 ### my_rf_cv (Random Forest and Cross-Validation)
 Finally, we will demonstrate how to use `my_rf_cv`. In this example, we want to predict `body_mass_g` from the covariates `bill_length_mm`, `bill_depth_mm` and `flipper_length_mm`. 
