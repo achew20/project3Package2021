@@ -1,0 +1,194 @@
+---
+title: "Project 3: project3Package2021 Tutorial"
+author: "Amy Chew"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{project3Package2021 Tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE, rmarkdown.html_vignette.check_title = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+## Introduction
+This package contains four total functions: two functions that perform statistical inference (t-Tests and linear models) and two functions that perform statistical prediction analysis (k-Nearest Neighbors and random forest). 
+
+The package can be installed using the following code: 
+```{r, eval = FALSE}
+devtools::install_github("achew20/project3Package2021")
+```
+The following is also needed to follow along with this tutorial: 
+```{r, message = FALSE}
+# load packages
+library(project3Package2021)
+library(dplyr)
+library(ggplot2)
+library(tibble)
+
+# load data
+my_gapminder <- library(gapminder)
+data("my_gapminder")
+
+my_penguins <- library(palmerpenguins)
+data("my_penguins")
+```
+
+## Statistical Inference
+### my_t.test (perform t-Test)
+We will demonstrate the usage of `my_t.test` and `my_lm` using data from `my_gapminder`.
+
+We want to perform three separate t-Tests on the `lifeExp` data with the following hypotheses: 
+\begin{align}
+H_0: \mu &= 60\\
+H_a: \mu &\neq 60;\\\\
+
+H_0: \mu &= 60\\
+H_a: \mu &< 60;\\\\
+
+H_0: \mu &= 60\\
+H_a: \mu &> 60;
+\end{align}
+
+(a) To perform a t-Test on a two-sided alternative hypothesis, enter `"two-sided"` in the `alternative` argument. 
+```{r}
+my_t.test(x = my_gapminder$lifeExp, alternative = "two-sided", mu = 60)
+```
+Because our function produced a p-value of around 0.093, assuming a p-value cut off of $\alpha = 0.05$, this suggests that our p-value is not statistically significant and therefore provides strong evidence for the null hypothesis that the true mean life expectancy is 60. 
+
+(b)
+```{r}
+my_t.test(x = my_gapminder$lifeExp, alternative = "less", mu = 60)
+```
+This time, our function produced a p-value of 0.047. Using the same level of significance, our p-value is statistically significant and therefore provides evidence to support the alternative hypothesis (the true mean `lifeExp` is less than 60).
+
+(c)
+```{r}
+my_t.test(x = my_gapminder$lifeExp, alternative = "greater", mu = 60)
+```
+Finally, performing a t-Test on the final hypotheses produced a p-value of about 0.953, which indicates that it is not statistically significant and supports the null hypothesis (the true mean life expectancy is equal to 60).
+
+Synthesizing our results from all three tests provides evidence that the true mean life expectancy is close but less than 60 years. 
+
+### my_lm (fitting a linear model)
+Next, we want to demonstrate a regression with the response variable, `lifeExp`, and `gdpPercap` and `continent` as our explanatory variables. We can use the `my_lm` function from our package to fit the linear model. 
+
+```{r}
+my_lm(formula = lifeExp ~ gdpPercap + continent, data = my_gapminder)
+```
+Interpreting the output of our function for the `gdpPercap` variable reveals that the average GDP (per capita) in our data set is about 4.788852e+01. The standard error, 3.398053e-01, tells us that this is the average amount that our estimate will vary from the actual value of `gdpPercap`. Our output `t value` tells us that our coefficient estimate is about 18.95 standard deviations away from 0. And finally, the `Pr(>|t|)` column indicates the probability that our values will be larger or smaller tan our t-value. 
+
+Our hypothesis test associated with the `gdpPercap` variable are:
+
+\begin{align}
+H_0: \mu &= 4.452704e-04,\\
+H_a: \mu &\neq 4.452704e-04.
+\end{align}
+
+Our outputted p-value from the function, represented by `Pr(>|t|)` is very small and close to zero. Assuming a significance level of $\alpha = 0.05$, our p-value is not statistically significant and therefore supports the null hypothesis that the average GDP per capita is about 4.452704e-04.
+Furthermore, we can deduce that there is a very slim possibility that there is a relationship between life expectancy and GDP per capita based on chance and that there is a correlation between the variables. 
+
+We will now use the output from our `my_lm` function to create a plot of the actual vs. fitted values. 
+```{r}
+# use function to produce values for estimates 
+my_lm_lifeExp <- my_lm(formula = lifeExp ~ gdpPercap + continent, data = my_gapminder)
+# calculate X matrix 
+x_matrix <- model.matrix(lifeExp ~ gdpPercap + continent, my_gapminder)
+
+# calculate y-hat using X and estimates
+y_hat <- x_matrix %*% my_lm_lifeExp[,1]
+
+# plot
+my_df <- data.frame(actual = my_gapminder$lifeExp, fitted = y_hat)
+ggplot(my_df, aes(y = fitted, x = actual)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, col = "red", lty = 2) + 
+  theme_bw(base_size = 15) +
+  labs(y = "Fitted values", x = "Actual values", title = "Actual vs. Fitted") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+Our plot of the Actual vs. Fitted values displays a mostly linear trend, as the higher actual values are positively correlated with fitted values. This suggests that the linear model we built fits the actual data fairly well.
+
+However, the exponential-like pattern of the data may suggest that an exponential model might fit the data better. 
+
+## Statistical Prediction
+We will demonstrate the use of `my_knn_cv` and `my_rf_cv` using data from `my_penguins`. 
+
+### my_knn_cv (k-Nearest Neighbors and Cross-Validation Analysis)
+We want to predict the class `species` of penguin using the following covariates: `bill_length_mm`, `bill_depth_mm`, `flipper_length_mm`, and `body_mass_g`. 
+
+First, we need to clean and subset the data in order to input it into the `my_knn_cv` function. 
+```{r}
+my_penguins <- na.omit(my_penguins)
+my_penguins_meas <- my_penguins[c(3:6)]
+```
+
+Next, we input the data into our function using a 5-fold cross validation and 10 neighbors: 
+```{r}
+cv_err_all <- rep(NA, 10)
+train_err_all <- rep(NA, 10)
+for (i in 1:10) {
+  output_dataframe <- my_knn_cv(train = my_penguins_meas, cl = my_penguins$species, k_nn = i, k_cv = 5)
+  cv_err_all[i] <- output_dataframe$`Misclassification Error`
+  train_err_all[i] <- mean(output_dataframe$`Predicted Class` != my_penguins$species)
+}
+cv_err_all
+train_err_all
+```
+Based on the CV misclassification rates, I would choose a k-Nearest Neighbors model with k = 1, because this is when the CV miscalssification rate is lowest. 
+
+
+### my_rf_cv (Random Forest and Cross-Validation)
+Finally, we will demonstrate how to use `my_rf_cv`. In this example, we want to predict `body_mass_g` from the covariates `bill_length_mm`, `bill_depth_mm` and `flipper_length_mm`. 
+
+```{r}
+mse_all <- rep(NA, 90)
+k_vals <- rep(c(2,5,10), each = 30)
+
+for(i in 1:90) {
+  k_vals[i]
+  mse_all[i] <- my_rf_cv(k_vals[i])
+}
+mse_all
+
+mse_2 <- mse_all[1:30]
+mse_5 <- mse_all[31:60]
+mse_10 <- mse_all[61:90]
+```
+We will now plot a boxplot for each value of k, each representing 30 simulations. 
+
+```{r}
+mse_box <- data.frame("k" = c(2, 5, 10),
+                      "MSE" = c(mse_2, mse_5, mse_10))
+ggplot(data = mse_box, aes(x = k, y = MSE, group = k)) + 
+  geom_boxplot() +
+  labs(title = "Distribution of 90 Random Forest Simulations, by k-Value", x = "k-Value", y = "CV Estimated MSE")
+```
+We will now calculate the average CV estimate and standard deviation for all k-Values. 
+
+```{r}
+# k = 2
+ave_cv_2 <- mean(mse_2)
+sd_cv_2 <- sd(mse_2)
+
+# k = 5
+ave_cv_5 <- mean(mse_5)
+sd_cv_5 <- sd(mse_5)
+
+# k = 10
+ave_cv_10 <- mean(mse_10)
+sd_cv_10 <- sd(mse_10)
+
+# create data frame 
+ave_sd_all <- data.frame("k" = c(2, 5, 10),
+                         "mean" = c(ave_cv_2, ave_cv_5, ave_cv_10),
+                         
+                         "sd" = c(sd_cv_2, sd_cv_5, sd_cv_10))
+ave_sd_all
+```
+Looking at our boxplots and tables of the mean/SD of our MSE values across k, it can be seen that the number of folds that produced the highest mean MSE was k = 2, and the lowest being k = 10. Although the table demonstrates that as k increased, the spread (standard deviation) of our MSE values increased. However, interpreting this data in conjunction with our boxplots suggests that if we removed extreme outliers from each group of data, k = 10 in fact has the least standard deviation and k = 2 has the largest spread. 
+
+This may be the case, because the more folds used in a Random Forest analysis, the more detailed our test data is and the lower the error. 
