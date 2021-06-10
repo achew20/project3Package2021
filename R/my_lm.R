@@ -10,8 +10,9 @@
 #'    standard error (numeric), t-value (numeric), and the p-value of the t-test (numeric). 
 #' 
 #' @examples 
-#' my_lm(formula = x ~ y, data = mydata)
-#' my_lm(formula = x + z ~ y, data = dataset)
+#' data(mtcars)
+#' my_lm(formula = mpg ~ wt, data = mtcars)
+#' my_lm(formula = hp + wt ~ mpg, data = mtcars)
 #' 
 #' @export
 

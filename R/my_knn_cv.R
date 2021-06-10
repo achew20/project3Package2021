@@ -13,7 +13,8 @@
 #'   value representing the cross-validation misclassification error. 
 #' 
 #' @examples 
-#' my_knn_cv(train = my_penguins[,c(3:6)], cl = my_penguins$species, k_nn = 1, k_cv = 5)
+#' ex_penguins <- na.omit(my_penguins)
+#' my_knn_cv(train = ex_penguins[,c(3:6)], cl = ex_penguins$species, k_nn = 1, k_cv = 5)
 #' 
 #' @export
 
@@ -22,8 +23,6 @@
 #   k_nn (must be numeric), k_cv (must be numeric)
 # Output: list with elements: 'predicted class', 'cv_err'
 my_knn_cv <- function(train, cl, k_nn, k_cv) {
-  train <- na.omit(train)
-  cl <- na.omit(cl)
   # randomly assigns observations to folds 
   fold <- sample(rep(1:k_cv, length = nrow(train))) 
   
@@ -36,7 +35,7 @@ my_knn_cv <- function(train, cl, k_nn, k_cv) {
     x_train <- train[fold != i,]
     x_test <- train[fold == i,]
     y_train <- cl[fold != i]
-    y_test <- cl[fold ==i]
+    y_test <- cl[fold == i]
     
     cl <- as.vector(cl)
     

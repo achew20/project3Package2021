@@ -9,8 +9,7 @@
 #' @return Numeric value representing the cross-validation error. 
 #' 
 #' @examples 
-#' my_knn_cv(5)
-#' my_knn_cv(1)
+#' my_rf_cv(5)
 #' 
 #' @export
 
@@ -18,9 +17,7 @@
 # Input: k (must be numeric)
 # Output: mse (mean standard error)
 my_rf_cv <- function(k) {
-  library(palmerpenguins)
-  data(package = "palmerpenguins")
-  
+  penguins <- project3Package2021::my_penguins
   penguins_meas <- penguins %>% 
     dplyr::select(bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g)
   penguins_meas <- na.omit(penguins_meas)

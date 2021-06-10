@@ -17,8 +17,7 @@ Predicts an output class of a given training data using the Random Forest
 statistical prediction method and cross-validation.
 }
 \examples{
-my_knn_cv(5)
-my_knn_cv(1)
+my_rf_cv(5)
 
 }
 \keyword{prediction}

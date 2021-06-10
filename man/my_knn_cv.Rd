@@ -24,7 +24,8 @@ Predicts an output class of a given training data using the k-Nearest Neighbors 
 statistical prediction method and cross-validation.
 }
 \examples{
-my_knn_cv(train = my_penguins[,c(3:6)], cl = my_penguins$species, k_nn = 1, k_cv = 5)
+ex_penguins <- na.omit(my_penguins)
+my_knn_cv(train = ex_penguins[,c(3:6)], cl = ex_penguins$species, k_nn = 1, k_cv = 5)
 
 }
 \keyword{prediction}

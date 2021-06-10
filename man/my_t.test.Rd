@@ -21,8 +21,9 @@ initial input value of \code{alternative}, and the p-value (numeric).
 Performs one or two-sided t-tests on numerical data.
 }
 \examples{
-my_t.test(x = data[1:100], alternative = "less", mu = 0)
-my_t.test(x = mydata[5:200], alternative = "two-sided", mu = 1)
+set.seed(302)
+x <- rnorm(100, mean = 0, sd = 1)
+my_t.test(x = x, alternative = "less", mu = 0)
 
 }
 \keyword{inference}

@@ -25,5 +25,6 @@ Imports:
     class,
     dplyr,
     tibble,
-    ggplot2
+    ggplot2,
+    magrittr
 VignetteBuilder: knitr
